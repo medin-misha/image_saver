@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, HTTPException, status
-from utils import generate_random_string, get_file_by_id, remove_file
+from utils import generate_random_string, remove_file
 from config import images
+
 router = APIRouter(prefix="/image")
 
 
@@ -17,20 +18,10 @@ async def save_image(image: UploadFile) -> str:
         f.write(content)
     return f"{image_id}{image.filename}"
 
-@router.post("/{id}")
-async def update_image(new_image: UploadFile, id: str):
-    filename = get_file_by_id(id=id)
+
+@router.delete("/{filename}")
+async def delete_image(filename: str):
     if filename is None:
         raise HTTPException(status_code=404, detail="Файл не найден")
-    with open(f"{images}/{filename}", "wb") as f:
-        content = await new_image.read()
-        f.write(content)
-    return id
-
-@router.delete("/{id}")
-async def delete_image(id: str):
-    filename = get_file_by_id(id=id)
-    if filename is None:
-       raise HTTPException(status_code=404, detail="Файл не найден")
     remove_file(name=filename)
     raise HTTPException(status_code=status.HTTP_204_NO_CONTENT)
