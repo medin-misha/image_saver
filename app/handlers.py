@@ -8,14 +8,14 @@ router = APIRouter(prefix="/image")
 async def save_image(image: UploadFile) -> str:
     """
     Функция которая будет получать изображение. Создавать ему ID и сохранять в файловой системе.
-    Возвращает ID в виде строки с 20 символами.
+    Возвращает ID в виде строки с 20 символами + название + формат изображения.
     """
     id_lenght = 20
     image_id = generate_random_string(length=id_lenght)
     with open(f"{images}/{image_id}{image.filename}", "wb") as f:
         content = await image.read()
         f.write(content)
-    return image_id
+    return f"{image_id}{image.filename}"
 
 @router.post("/{id}")
 async def update_image(new_image: UploadFile, id: str):
